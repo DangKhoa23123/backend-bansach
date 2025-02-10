@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Thêm sách</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+
+        form {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        #message {
+            margin-top: 15px;
+            text-align: center;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <form id="bookForm">
+        <h2>Thêm sách mới</h2>
+        <div class="form-group">
+            <label for="bookId">ID sách:</label>
+            <input type="text" id="bookId" required>
+        </div>
+        <div class="form-group">
+            <label for="bookTitle">Tiêu đề:</label>
+            <input type="text" id="bookTitle" required>
+        </div>
+        <div class="form-group">
+            <label for="bookAuthor">Tác giả:</label>
+            <input type="text" id="bookAuthor" required>
+        </div>
+        <div class="form-group">
+            <label for="bookPrice">Giá:</label>
+            <input type="number" id="bookPrice" required>
+        </div>
+        <div class="form-group">
+            <label for="bookThumbnail">Ảnh bìa (URL):</label>
+            <input type="text" id="bookThumbnail" required>
+            
+        </div>
+        <div class="form-group">
+            <label for="bookDescription">Mô tả:</label>
+            <textarea id="bookDescription" required></textarea>
+        </div>
+        <div class="form-group">
+            <label for="bookGenre">Thể loại:</label>
+            <input type="text" id="bookGenre" required>
+        </div>
+        <div class="form-group">
+            <label for="bookQuality">Số lượng:</label>
+            <input type="number" id="bookQuality" required>
+        </div>
+        <button type="button" onclick="submitBook()">Thêm sách</button>
+        <div id="message"></div>
+    </form>
+
+    <script>
+        async function submitBook() {
+            const book = {
+                id: document.getElementById('bookId').value,
+                title: document.getElementById('bookTitle').value,
+                author: document.getElementById('bookAuthor').value,
+                price: parseFloat(document.getElementById('bookPrice').value),
+                thumbnail: document.getElementById('bookThumbnail').value,
+                description: document.getElementById('bookDescription').value,
+                genre: document.getElementById('bookGenre').value,
+                quality: parseInt(document.getElementById('bookQuality').value)
+            };
+
+            try {
+                const response = await fetch('/books', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(book)
+                });
+
+                const result = await response.json();
+                const messageDiv = document.getElementById('message');
+                if (result.success) {
+                    messageDiv.textContent = 'Thêm sách thành công!';
+                    messageDiv.style.color = 'green';
+                } else {
+                    messageDiv.textContent = result.error || 'Thêm sách thất bại!';
+                    messageDiv.style.color = 'red';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                const messageDiv = document.getElementById('message');
+                messageDiv.textContent = 'Có lỗi xảy ra khi thêm sách!';
+                messageDiv.style.color = 'red';
+            }
+        }
+    </script>
+</body>
+</html>
