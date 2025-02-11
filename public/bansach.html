@@ -1,16 +1,17 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quản lý Sách</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
 </head>
+
 <body>
     <div class="container mt-4">
         <h2 class="text-center text-primary">Quản lý Sách</h2>
 
-        <!-- Danh sách sách -->
         <div class="mt-4">
             <h4>Danh sách sách</h4>
             <table class="table table-bordered">
@@ -25,20 +26,17 @@
                         <th>Hành động</th>
                     </tr>
                 </thead>
-                <tbody id="books-list">
-                    <tr>
-                        <td colspan="7" class="text-center">Đang tải...</td>
-                    </tr>
-                </tbody>
+                <tbody id="books-list"></tbody>
             </table>
         </div>
 
-        <!-- Form thêm/sửa sách -->
         <div class="mt-4">
-            <h4 id="formTitle">Thêm sách mới</h4>
-            <form id="bookForm">
-                <input type="hidden" id="bookId">
+            <h4>Thêm sách mới</h4>
+            <form id="addBookForm">
                 <div class="row">
+                    <div class="col-md-4 mb-2">
+                        <input type="text" class="form-control" id="bookId" placeholder="ID Sách" required>
+                    </div>
                     <div class="col-md-4 mb-2">
                         <input type="text" class="form-control" id="bookTitle" placeholder="Tiêu đề" required>
                     </div>
@@ -52,13 +50,21 @@
                         <input type="text" class="form-control" id="bookThumbnail" placeholder="URL Ảnh" required>
                     </div>
                     <div class="col-md-4 mb-2">
+                        <textarea class="form-control" id="bookDescription" placeholder="Mô tả" required></textarea>
+                    </div>
+                    <div class="col-md-4 mb-2">
                         <input type="text" class="form-control" id="bookGenre" placeholder="Thể loại" required>
                     </div>
-                    <div class="col-md-12">
-                        <button type="button" class="btn btn-primary w-100" onclick="submitBook()">Lưu</button>
+                    <div class="col-md-4 mb-2">
+                        <input type="number" class="form-control" id="bookQuality" placeholder="Số lượng" required>
                     </div>
-                </div>
-                <div id="message" class="mt-2 text-center"></div>
+                    <div class="col-md-6">
+                        <button type="button" class="btn btn-primary w-100" onclick="submitBook()">Thêm sách</button>
+                    </div>
+                    <div class="col-md-6">
+                        <button type="button" class="btn btn-success w-100" onclick="saveBook()">Lưu</button>
+                    </div>
+                    <div id="message" class="mt-2 text-center"></div>
             </form>
         </div>
     </div>
@@ -70,9 +76,10 @@
             try {
                 const response = await fetch('/books');
                 const data = await response.json();
+
                 const booksList = document.getElementById("books-list");
                 booksList.innerHTML = "";
-                
+
                 if (data.success) {
                     data.books.forEach(book => {
                         booksList.innerHTML += `
@@ -83,7 +90,7 @@
                                 <td>${book.author}</td>
                                 <td>${book.price} đ</td>
                                 <td>${book.genre}</td>
-                                <td>
+                               <td>
                                     <button class="btn btn-warning btn-sm" onclick="editBook(${book.id}, '${book.title}', '${book.author}', ${book.price}, '${book.thumbnail}', '${book.genre}')">Sửa</button>
                                     <button class="btn btn-danger btn-sm" onclick="deleteBook(${book.id})">Xóa</button>
                                 </td>
@@ -94,6 +101,38 @@
                 }
             } catch (error) {
                 console.error("Lỗi:", error);
+                document.getElementById("books-list").innerHTML = `<tr><td colspan="7" class="text-center text-danger">Lỗi kết nối API.</td></tr>`;
+            }
+        }
+
+        async function submitBook() {
+            const book = {
+                id: document.getElementById('bookId').value,
+                title: document.getElementById('bookTitle').value,
+                author: document.getElementById('bookAuthor').value,
+                price: parseFloat(document.getElementById('bookPrice').value),
+                thumbnail: document.getElementById('bookThumbnail').value,
+                description: document.getElementById('bookDescription').value,
+                genre: document.getElementById('bookGenre').value,
+                quality: parseInt(document.getElementById('bookQuality').value)
+            };
+
+            try {
+                const response = await fetch('/books', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(book)
+                });
+
+                const result = await response.json();
+                document.getElementById('message').textContent = result.success ? 'Thêm sách thành công!' : 'Thêm sách thất bại!';
+
+                if (result.success) {
+                    document.getElementById("addBookForm").reset();
+                    fetchBooks();
+                }
+            } catch (error) {
+                console.error('Lỗi:', error);
             }
         }
 
@@ -140,22 +179,20 @@
             }
         }
 
-        async function deleteBook(bookId) {
+
+
+
+        function deleteBook(bookId) {
             if (confirm(`Bạn có chắc muốn xóa sách có ID: ${bookId}?`)) {
-                try {
-                    const response = await fetch(`/books/${bookId}`, { method: 'DELETE' });
-                    const result = await response.json();
-                    if (result.success) {
-                        alert("Xóa sách thành công!");
-                        fetchBooks();
-                    } else {
-                        alert("Xóa sách thất bại!");
-                    }
-                } catch (error) {
-                    console.error("Lỗi:", error);
-                }
+                fetch(`/books/${bookId}`, { method: 'DELETE' })
+                    .then(response => response.json())
+                    .then(result => {
+                        if (result.success) fetchBooks();
+                    })
+                    .catch(error => console.error("Lỗi:", error));
             }
         }
     </script>
 </body>
+
 </html>

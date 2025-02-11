@@ -90,8 +90,8 @@
                                 <td>${book.author}</td>
                                 <td>${book.price} đ</td>
                                 <td>${book.genre}</td>
-                               <td>
-                                    <button class="btn btn-warning btn-sm" onclick="editBook(${book.id}, '${book.title}', '${book.author}', ${book.price}, '${book.thumbnail}', '${book.genre}')">Sửa</button>
+                                <td>
+                                    <button class="btn btn-warning btn-sm"onclick="editBook(${book.id}, '${book.title}', '${book.author}', ${book.price}, '${book.thumbnail}', '${book.genre}', '${book.description}', ${book.quality})">Sửa</button>
                                     <button class="btn btn-danger btn-sm" onclick="deleteBook(${book.id})">Xóa</button>
                                 </td>
                             </tr>`;
@@ -136,48 +136,59 @@
             }
         }
 
-        function editBook(id, title, author, price, thumbnail, genre) {
-            document.getElementById("formTitle").textContent = "Chỉnh sửa sách";
-            document.getElementById("bookId").value = id;
-            document.getElementById("bookTitle").value = title;
-            document.getElementById("bookAuthor").value = author;
-            document.getElementById("bookPrice").value = price;
-            document.getElementById("bookThumbnail").value = thumbnail;
-            document.getElementById("bookGenre").value = genre;
+        function editBook(id, title, author, price, thumbnail, genre, description, quality) {
+        document.getElementById("bookId").value = id;
+        document.getElementById("bookTitle").value = title;
+        document.getElementById("bookAuthor").value = author;
+        document.getElementById("bookPrice").value = price;
+        document.getElementById("bookThumbnail").value = thumbnail;
+        document.getElementById("bookGenre").value = genre;
+        document.getElementById("bookDescription").value = description;
+        document.getElementById("bookQuality").value = quality;
         }
 
-        async function submitBook() {
-            const book = {
-                id: document.getElementById('bookId').value || null,
-                title: document.getElementById('bookTitle').value,
-                author: document.getElementById('bookAuthor').value,
-                price: parseFloat(document.getElementById('bookPrice').value),
-                thumbnail: document.getElementById('bookThumbnail').value,
-                genre: document.getElementById('bookGenre').value
-            };
 
-            const method = book.id ? 'PUT' : 'POST';
-            const url = book.id ? `/books/${book.id}` : '/books';
-            try {
-                const response = await fetch(url, {
-                    method: method,
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(book)
-                });
-                const result = await response.json();
-                
-                if (result.success) {
-                    alert(book.id ? "Cập nhật sách thành công!" : "Thêm sách thành công!");
-                    fetchBooks();
-                    document.getElementById("bookForm").reset();
-                    document.getElementById("formTitle").textContent = "Thêm sách mới";
-                } else {
-                    alert("Thao tác thất bại!");
-                }
-            } catch (error) {
-                console.error('Lỗi:', error);
-            }
+        async function saveBook() {
+    const book = {
+        id: document.getElementById('bookId').value.trim() !== "" ? document.getElementById('bookId').value : null,
+        title: document.getElementById('bookTitle').value,
+        author: document.getElementById('bookAuthor').value,
+        price: parseFloat(document.getElementById('bookPrice').value),
+        thumbnail: document.getElementById('bookThumbnail').value,
+        genre: document.getElementById('bookGenre').value,
+        description: document.getElementById('bookDescription').value, // Thêm 2 trường còn thiếu
+        quality: document.getElementById('bookQuality').value
+    };
+
+    const method = book.id ? 'PUT' : 'POST';
+    const url = book.id ? `/books/${book.id}` : '/books';
+    
+    console.log('Request:', {method, url, book}); // Log request details
+    
+    try {
+        const response = await fetch(url, {
+            method: method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(book)
+        });
+        
+        console.log('Response status:', response.status); // Log response status
+        const result = await response.json();
+        console.log('Response data:', result); // Log response data
+        
+        if (result.success) {
+            alert(book.id ? "Cập nhật sách thành công!" : "Thêm sách thành công!");
+            await fetchBooks(); // Thêm await để đảm bảo dữ liệu được fetch xong
+            document.getElementById("bookForm").reset();
+            document.getElementById("formTitle").textContent = "Thêm sách mới";
+        } else {
+            alert("Thao tác thất bại!");
         }
+    } catch (error) {
+        console.error('Lỗi:', error);
+        alert("Có lỗi xảy ra: " + error.message);
+    }
+}
 
 
 
