@@ -23,7 +23,7 @@ app.use("/books", bookRoutes);
 
 // Trang chính
 app.get("/", (req, res) => {
-    res.sendFile(path.join(__dirname, "public", "test.html"));
+    res.sendFile(path.join(__dirname, "public", "bansach.html"));
 });
 
 // Khởi động server
