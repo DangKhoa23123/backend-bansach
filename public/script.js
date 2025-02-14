@@ -47,40 +47,33 @@ async function fetchBooks() {
 }
 
 async function submitBook() {
-    const book = {
-        id: document.getElementById('bookId').value,
-        title: document.getElementById('bookTitle').value,
-        author: document.getElementById('bookAuthor').value,
-        price: parseFloat(document.getElementById('bookPrice').value),
-        thumbnail: document.getElementById('bookThumbnail').value,
-        description: document.getElementById('bookDescription').value,
-        genre: document.getElementById('bookGenre').value,
-        quality: parseInt(document.getElementById('bookQuality').value)
-    };
+    const formData = new FormData();
+    formData.append("title", document.getElementById("bookTitle").value);
+    formData.append("author", document.getElementById("bookAuthor").value);
+    formData.append("price", document.getElementById("bookPrice").value);
+    formData.append("description", document.getElementById("bookDescription").value);
+    formData.append("genre", document.getElementById("bookGenre").value);
+    formData.append("quality", document.getElementById("bookQuality").value);
+    formData.append("thumbnail", document.getElementById("bookThumbnail").files[0]);
 
     try {
-        const method = editingBookId ? 'PUT' : 'POST';
-        const url = editingBookId ? `/books/${editingBookId}` : '/books';
-        
-        const response = await fetch(url, {
-            method,
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(book)
+        const response = await fetch('/books', {
+            method: "POST",
+            body: formData
         });
 
         const result = await response.json();
-        document.getElementById('message').textContent = result.success ? (editingBookId ? 'Cập nhật thành công!' : 'Thêm sách thành công!') : 'Thao tác thất bại!';
-        
         if (result.success) {
-            document.getElementById("addBookForm").reset();
-            document.getElementById("saveBookBtn").textContent = "Thêm sách"; // Reset nút
-            editingBookId = null;
+            alert("Thêm sách thành công!");
             fetchBooks();
+        } else {
+            alert("Lỗi: " + result.message);
         }
     } catch (error) {
-        console.error('Lỗi:', error);
+        console.error("Lỗi khi gửi yêu cầu:", error);
     }
 }
+
 
 function editBook(book) {
     document.getElementById('bookId').value = book.id;
