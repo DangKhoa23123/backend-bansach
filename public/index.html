@@ -67,6 +67,12 @@
                             <input type="file" class="form-control" id="thumbnail" accept="image/*" required>
                         </div>
                     </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="pageCount" class="form-label">Page Count</label>
+                            <input type="number" class="form-control" id="pageCount" required>
+                        </div>
+                    </div>
                     <button type="submit" class="btn btn-primary">Submit</button>
                     <button type="button" class="btn btn-secondary" onclick="resetForm()">Reset</button>
                 </form>
@@ -97,6 +103,8 @@
             formData.append('description', document.getElementById('description').value);
             formData.append('genre', document.getElementById('genre').value);
             formData.append('quality', document.getElementById('quality').value);
+            formData.append('pageCount', document.getElementById('pageCount').value);
+
             
             const thumbnailInput = document.getElementById('thumbnail');
             if (thumbnailInput.files[0]) {
@@ -157,6 +165,7 @@
                             <strong>Price:</strong> $${book.price}<br>
                             <strong>Genre:</strong> ${book.genre}<br>
                             <strong>Quality:</strong> ${book.quality}/10
+                            <strong>Pages:</strong> ${book.pageCount} pages
                         </p>
                         <p class="card-text">${book.description}</p>
                         <button class="btn btn-primary btn-sm" onclick="editBook('${book.id}')">Edit</button>

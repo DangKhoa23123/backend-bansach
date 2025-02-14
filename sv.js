@@ -1,86 +1,75 @@
-const express = require('express');
-const mongoose = require('mongoose');
+const express = require("express");
+const mongoose = require("mongoose");
 const multer = require('multer');
-const path = require('path');
+const path = require("path");
+const dotenv = require("dotenv");
+const authRoutes = require("./routers/auth");
+const bookRoutes = require("./routers/genre"); // Đảm bảo import đúng
+const Book = require("./models/Book"); // Import model từ file Book.js
+
+dotenv.config();
+
 const app = express();
 
-// Kết nối MongoDB
-mongoose.connect('mongodb://localhost:27017/bookstore', {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-}).then(() => {
-    console.log('Connected to MongoDB');
-}).catch((err) => {
-    console.error('MongoDB connection error:', err);
-});
-
-// Cấu hình middleware
+// Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, "public")));
 
-// Cấu hình static files - QUAN TRỌNG
-app.use(express.static(path.join(__dirname, 'public')));
+// Kết nối MongoDB
+mongoose
+    .connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+    .then(() => console.log("✅ Kết nối MongoDB thành công!"))
+    .catch((err) => console.error("❌ Kết nối MongoDB thất bại:", err));
 
-// Thiết lập Multer để upload file
+// Multer config
 const storage = multer.diskStorage({
     destination: './public/uploads/',
-    filename: function(req, file, cb) {
+    filename: function (req, file, cb) {
         cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
     }
 });
 
 const upload = multer({
     storage: storage,
-    limits: {fileSize: 1000000},
-    fileFilter: function(req, file, cb) {
+    limits: { fileSize: 5 * 1024 * 1024 },
+    fileFilter: function (req, file, cb) {
         checkFileType(file, cb);
     }
 }).single('thumbnail');
 
-// Kiểm tra loại file
 function checkFileType(file, cb) {
     const filetypes = /jpeg|jpg|png|gif/;
     const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
     const mimetype = filetypes.test(file.mimetype);
 
-    if(mimetype && extname) {
+    if (mimetype && extname) {
         return cb(null, true);
     } else {
         cb('Error: Images Only!');
     }
 }
 
-// Book Schema
-const bookSchema = new mongoose.Schema({
-    id: { type: String, required: true, unique: true },
-    title: { type: String, required: true, unique: true },
-    author: { type: String, required: true },
-    price: { type: Number, required: true },
-    thumbnail: { type: String, required: true },
-    description: { type: String, required: true },
-    genre: { type: String, required: true },
-    quality: { type: Number, required: true }
-});
+// Routes
+app.use("/auth", authRoutes);
+app.use("/books", bookRoutes); // Route API lấy danh sách sách
 
-const Book = mongoose.model('Book', bookSchema);
-
-// Route cho trang chủ - QUAN TRỌNG
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// API Routes
-// Lấy tất cả sách
+// 📌 API lấy toàn bộ sách
 app.get('/api/books', async (req, res) => {
     try {
-        const books = await Book.find();
+        const books = await Book.find(); // Kiểm tra xem Book đã import đúng chưa
         res.json(books);
     } catch (err) {
+        console.error("Lỗi khi lấy danh sách sách:", err);
         res.status(500).json({ message: err.message });
     }
 });
 
-// Thêm sách mới
+// 📌 API thêm sách
 app.post('/api/books', upload, async (req, res) => {
     const book = new Book({
         id: req.body.id,
@@ -90,21 +79,25 @@ app.post('/api/books', upload, async (req, res) => {
         thumbnail: `/uploads/${req.file.filename}`,
         description: req.body.description,
         genre: req.body.genre,
-        quality: req.body.quality
+        quality: req.body.quality,
+        pageCount: req.body.pageCount
     });
 
     try {
         const newBook = await book.save();
         res.status(201).json(newBook);
     } catch (err) {
+        console.error("Lỗi khi thêm sách:", err);
         res.status(400).json({ message: err.message });
     }
 });
 
-// Cập nhật sách
+// 📌 API cập nhật sách
 app.put('/api/books/:id', upload, async (req, res) => {
     try {
         const book = await Book.findOne({ id: req.params.id });
+        if (!book) return res.status(404).json({ message: "Không tìm thấy sách" });
+
         if (req.body.title) book.title = req.body.title;
         if (req.body.author) book.author = req.body.author;
         if (req.body.price) book.price = req.body.price;
@@ -112,29 +105,29 @@ app.put('/api/books/:id', upload, async (req, res) => {
         if (req.body.description) book.description = req.body.description;
         if (req.body.genre) book.genre = req.body.genre;
         if (req.body.quality) book.quality = req.body.quality;
+        if (req.body.pageCount) book.pageCount = req.body.pageCount;
 
         const updatedBook = await book.save();
         res.json(updatedBook);
     } catch (err) {
+        console.error("Lỗi khi cập nhật sách:", err);
         res.status(400).json({ message: err.message });
     }
 });
 
-// Xóa sách
+// 📌 API xóa sách
 app.delete('/api/books/:id', async (req, res) => {
     try {
         await Book.deleteOne({ id: req.params.id });
         res.json({ message: 'Book deleted' });
     } catch (err) {
+        console.error("Lỗi khi xóa sách:", err);
         res.status(500).json({ message: err.message });
     }
 });
 
-// Error handling middleware
-app.use((err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).send('Something broke!');
+// Khởi động server
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+    console.log(`🚀 Server running on http://localhost:${PORT}`);
 });
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🚀 Server chạy tại http://localhost:${PORT}`));
