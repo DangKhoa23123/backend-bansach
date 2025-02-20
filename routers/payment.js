@@ -38,7 +38,6 @@ router.post("/payment", async (req, res) => {
       buyerEmail: user.email,
       books: booksInfo,
       totalAmount: total,
-      status: "pending"
     });
 
     await newOrder.save();
@@ -58,5 +57,20 @@ router.get("/payments", async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
+router.get("/payments/:id", async (req, res) => {
+    try {
+      const orderId = req.params.id; // "647b79d43b3d5b1c23db8b91"
+      const order = await PaymentOrder.findById(orderId);
+      if (!order) {
+        return res.status(404).json({ error: "Không tìm thấy đơn hàng" });
+      }
+      res.json(order);
+    } catch (error) {
+      console.error("Lỗi khi lấy chi tiết đơn hàng:", error);
+      res.status(500).json({ error: "Lỗi server" });
+    }
+  });
+  
 
 module.exports = router;

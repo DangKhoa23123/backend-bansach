@@ -11,10 +11,7 @@ const paymentOrderSchema = new mongoose.Schema({
     }
   ],
   totalAmount: { type: Number, required: true },
-  // Trạng thái đơn hàng: 'pending', 'confirmed', 'cancelled'
-  status: { type: String, enum: ["pending", "confirmed", "cancelled"], default: "pending" },
   createdAt: { type: Date, default: Date.now }
 });
 
-const PaymentOrder = mongoose.model("PaymentOrder", paymentOrderSchema);
-module.exports = PaymentOrder;
+module.exports = mongoose.model("PaymentOrder", paymentOrderSchema);
