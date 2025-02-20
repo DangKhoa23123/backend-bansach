@@ -4,8 +4,10 @@ const multer = require('multer');
 const path = require("path");
 const dotenv = require("dotenv");
 const authRoutes = require("./routers/auth");
-const bookRoutes = require("./routers/genre"); // Đảm bảo import đúng
+const genreRoutes = require("./routers/genre");
+const searchRoutes = require("./routers/search") // Đảm bảo import đúng
 const Book = require("./models/Book"); // Import model từ file Book.js
+const User = require("./models/User");
 
 dotenv.config();
 
@@ -52,7 +54,9 @@ function checkFileType(file, cb) {
 
 // Routes
 app.use("/auth", authRoutes);
-app.use("/books", bookRoutes); // Route API lấy danh sách sách
+app.use("/genres", genreRoutes);
+app.use("/search", searchRoutes);// Route API lấy danh sách sách
+
 
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
@@ -63,6 +67,17 @@ app.get('/api/books', async (req, res) => {
     try {
         const books = await Book.find(); // Kiểm tra xem Book đã import đúng chưa
         res.json(books);
+    } catch (err) {
+        console.error("Lỗi khi lấy danh sách sách:", err);
+        res.status(500).json({ message: err.message });
+    }
+});
+
+// 📌 API lấy toàn bộ user
+app.get('/api/users', async (req, res) => {
+    try {
+        const users = await User.find(); // Kiểm tra xem Book đã import đúng chưa
+        res.json(users);
     } catch (err) {
         console.error("Lỗi khi lấy danh sách sách:", err);
         res.status(500).json({ message: err.message });

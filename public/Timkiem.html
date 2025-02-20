@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trang Tìm Kiếm</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 20px;
+    }
+    .search-container {
+      max-width: 600px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 5px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    input[type="text"] {
+      width: 80%;
+      padding: 10px;
+      margin-right: 5px;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+    }
+    input[type="submit"] {
+      padding: 10px 15px;
+      border: none;
+      background: #5cb85c;
+      color: #fff;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+    input[type="submit"]:hover {
+      background: #4cae4c;
+    }
+  </style>
+</head>
+<body>
+  <div class="search-container">
+    <h2>Tìm Kiếm</h2>
+    <form action="/timkiem" method="GET">
+      <input type="text" name="query" placeholder="Nhập từ khóa..." required>
+      <input type="submit" value="Tìm Kiếm">
+    </form>
+  </div>
+</body>
+</html>
