@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Chi Tiết Đơn Hàng</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background: #f8f8f8;
+    }
+    h1, h2 {
+      color: #003366;
+    }
+    .order-detail {
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      max-width: 600px;
+      margin: auto;
+    }
+    p {
+      font-size: 16px;
+      margin: 8px 0;
+    }
+    ul {
+      list-style-type: disc;
+      margin-left: 20px;
+    }
+    button {
+      margin-top: 20px;
+      padding: 8px 16px;
+      background-color: #0066cc;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #005bb5;
+    }
+  </style>
+</head>
+<body>
+  <h1>Chi Tiết Đơn Hàng</h1>
+  <div class="order-detail" id="order-detail">
+    <!-- Chi tiết đơn hàng sẽ được hiển thị ở đây -->
+  </div>
+  <div style="text-align: center;">
+    <button onclick="goBack()">Quay lại</button>
+  </div>
+
+  <script>
+    // Hàm lấy giá trị của tham số trên URL
+    function getQueryParam(param) {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(param);
+    }
+
+    const orderId = getQueryParam("id");
+
+    // Hàm lấy chi tiết đơn hàng từ API
+    async function fetchOrderDetail() {
+      try {
+        // Giả sử API trả về chi tiết đơn hàng tại: /api/payments/:id
+        const response = await fetch(`http://localhost:3000/api/payments/${orderId}`);
+        if (!response.ok) {
+          throw new Error("Không thể tải chi tiết đơn hàng");
+        }
+        const order = await response.json();
+        displayOrderDetail(order);
+      } catch (error) {
+        console.error("Lỗi:", error);
+        document.getElementById("order-detail").innerHTML = `<p style="color:red;">Lỗi: ${error.message}</p>`;
+      }
+    }
+
+    // Hàm hiển thị chi tiết đơn hàng
+    function displayOrderDetail(order) {
+      const container = document.getElementById("order-detail");
+      container.innerHTML = `
+        <p><strong>Mã Đơn Hàng:</strong> ${order._id}</p>
+        <p><strong>Người Mua:</strong> ${order.buyerName}</p>
+        <p><strong>Email:</strong> ${order.buyerEmail}</p>
+        <p><strong>Số Tiền:</strong> ${order.totalAmount}đ</p>
+        <p><strong>Trạng Thái:</strong> ${order.status}</p>
+        <p><strong>Ngày Đặt:</strong> ${new Date(order.createdAt).toLocaleString()}</p>
+        <h2>Danh Sách Sách:</h2>
+        <ul>
+          ${order.books.map(book => `<li>${book.title} - ${book.price}đ</li>`).join('')}
+        </ul>
+      `;
+    }
+
+    // Hàm quay lại trang trước
+    function goBack() {
+      window.history.back();
+    }
+
+    // Gọi hàm fetchOrderDetail khi trang load
+    window.onload = fetchOrderDetail;
+  </script>
+</body>
+</html>

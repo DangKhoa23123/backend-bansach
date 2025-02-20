@@ -14,6 +14,9 @@ dotenv.config();
 
 const app = express();
 
+const cors = require("cors");
+app.use(cors());
+
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -58,6 +61,8 @@ app.use("/auth", authRoutes);
 app.use("/genres", genreRoutes);
 app.use("/search", searchRoutes);
 app.use("/giamgia", giamgiaRoutes);
+const paymentRoutes = require("./routers/payment");
+app.use("/api", paymentRoutes);
 
 
 app.get('/', (req, res) => {
