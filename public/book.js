@@ -16,6 +16,7 @@
             formData.append('genre', document.getElementById('genre').value);
             formData.append('quality', document.getElementById('quality').value);
             formData.append('pageCount', document.getElementById('pageCount').value);
+            formData.append('giamgia', document.getElementById('giamgia').value);
 
             
             const thumbnailInput = document.getElementById('thumbnail');
@@ -76,8 +77,10 @@
                             <strong>Author:</strong> ${book.author}<br>
                             <strong>Price:</strong> $${book.price}<br>
                             <strong>Genre:</strong> ${book.genre}<br>
-                            <strong>Quality:</strong> ${book.quality}/10
+                            <strong>Quality:</strong> ${book.quality}/100
                             <strong>Pages:</strong> ${book.pageCount} pages
+                            <strong>giamgia:</strong> ${book.giamgia}<br>
+                            
                         </p>
                         <p class="card-text">${book.description}</p>
                         <button class="btn btn-primary btn-sm" onclick="editBook('${book.id}')">Edit</button>
@@ -103,9 +106,11 @@
                     document.getElementById('description').value = book.description;
                     document.getElementById('genre').value = book.genre;
                     document.getElementById('quality').value = book.quality;
+                    document.getElementById('pageCount').value = book.pageCount;
+                    document.getElementById('giamgia').value = book.giamgia;
                     
                     document.getElementById('formTitle').textContent = 'Edit Book';
-                    document.getElementById('thumbnail').required = false; // Not required when editing
+                    document.getElementById('thumbnail').required = true;
                     editing = true;
                 }
             } catch (err) {

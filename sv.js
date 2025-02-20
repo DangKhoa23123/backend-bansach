@@ -5,8 +5,9 @@ const path = require("path");
 const dotenv = require("dotenv");
 const authRoutes = require("./routers/auth");
 const genreRoutes = require("./routers/genre");
-const searchRoutes = require("./routers/search") // Đảm bảo import đúng
-const Book = require("./models/Book"); // Import model từ file Book.js
+const searchRoutes = require("./routers/search")
+const giamgiaRoutes = require("./routers/giamgia");
+const Book = require("./models/Book");
 const User = require("./models/User");
 
 dotenv.config();
@@ -55,7 +56,8 @@ function checkFileType(file, cb) {
 // Routes
 app.use("/auth", authRoutes);
 app.use("/genres", genreRoutes);
-app.use("/search", searchRoutes);// Route API lấy danh sách sách
+app.use("/search", searchRoutes);
+app.use("/giamgia", giamgiaRoutes);
 
 
 app.get('/', (req, res) => {
@@ -76,7 +78,7 @@ app.get('/api/books', async (req, res) => {
 // 📌 API lấy toàn bộ user
 app.get('/api/users', async (req, res) => {
     try {
-        const users = await User.find(); // Kiểm tra xem Book đã import đúng chưa
+        const users = await User.find();
         res.json(users);
     } catch (err) {
         console.error("Lỗi khi lấy danh sách sách:", err);
@@ -95,7 +97,8 @@ app.post('/api/books', upload, async (req, res) => {
         description: req.body.description,
         genre: req.body.genre,
         quality: req.body.quality,
-        pageCount: req.body.pageCount
+        pageCount: req.body.pageCount,
+        giamgia: req.body.giamgia,
     });
 
     try {
@@ -121,6 +124,7 @@ app.put('/api/books/:id', upload, async (req, res) => {
         if (req.body.genre) book.genre = req.body.genre;
         if (req.body.quality) book.quality = req.body.quality;
         if (req.body.pageCount) book.pageCount = req.body.pageCount;
+        if (req.body.giamgia) book.giamgia = req.body.giamgia;
 
         const updatedBook = await book.save();
         res.json(updatedBook);

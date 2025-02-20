@@ -10,6 +10,7 @@ const bookSchema = new mongoose.Schema({
     genre: { type: String, required: true },
     quality: { type: Number, required: true },
     pageCount: { type: Number, required: true },
+    giamgia : { type: String },
 });
 
 const Book = mongoose.model("Book", bookSchema);

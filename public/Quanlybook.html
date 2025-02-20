@@ -16,7 +16,6 @@
     </style>
 </head>
 <body>
-    <h1>Danh sách Sách</h1>
     <div class="container mt-4">
         <h1 class="text-center mb-4">Book Management System</h1>
         
@@ -61,7 +60,7 @@
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label for="quality" class="form-label">Quality (1-10)</label>
-                            <input type="number" class="form-control" id="quality" min="1" max="10" required>
+                            <input type="number" class="form-control" id="quality" min="1" max="100" required>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label for="thumbnail" class="form-label">Thumbnail</label>
@@ -74,6 +73,10 @@
                             <input type="number" class="form-control" id="pageCount" required>
                         </div>
                     </div>
+                    <select class="form-select" id="giamgia" required>
+                        <option value="Giảm giá">Giảm giá</option>
+                        <option value="Không giảm giá">Không giảm giá</option>
+                    </select>
                     <button type="submit" class="btn btn-primary">Submit</button>
                     <button type="button" class="btn btn-secondary" onclick="resetForm()">Reset</button>
                 </form>
